@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/*  LearnFerno design tokens                                           */
+/*  Fiery by default. Colors are driven by CSS variables so themes +   */
+/*  the user's custom accent can be swapped at runtime without          */
+/*  rebuilding utilities. (Same engine as the GradeFlow design system.) */
+/* ------------------------------------------------------------------ */
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-heat: var(--heat);
+
+  --radius-card: var(--radius);
+  --radius-soft: calc(var(--radius) * 0.6);
+
+  --font-sans: var(--app-font);
+}
+
+/* ---------- default theme: Inferno (dark, ember) ---------- */
+:root,
+[data-theme="inferno"] {
+  --bg: #140805;
+  --bg-grad: radial-gradient(1200px 820px at 80% -12%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 60%),
+             radial-gradient(1000px 760px at -8% 112%, color-mix(in srgb, #ff2d00 16%, transparent), transparent 55%),
+             radial-gradient(900px 900px at 50% 130%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%);
+  --surface: #1f0d08;
+  --surface-2: #2a130b;
+  --surface-3: #3a1c10;
+  --text: #fff1e6;
+  --muted: #d6a487;
+  --faint: #9c6a4f;
+  --line: #3a1c10;
+  --accent-fg: #1a0a04;
+  --shadow: rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- Ember (deep red) ---------- */
+[data-theme="ember"] {
+  --bg: #170406;
+  --bg-grad: radial-gradient(1200px 820px at 82% -12%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 60%),
+             radial-gradient(1000px 760px at -8% 112%, #4a0a10 0%, transparent 55%);
+  --surface: #210709;
+  --surface-2: #2d0c0f;
+  --surface-3: #3c1318;
+  --text: #ffe9ea;
+  --muted: #d49aa0;
+  --faint: #99616a;
+  --line: #3a1216;
+  --accent-fg: #1a0406;
+  --shadow: rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- Magma (orange / black) ---------- */
+[data-theme="magma"] {
+  --bg: #0f0a06;
+  --bg-grad: radial-gradient(1100px 780px at 85% -10%, color-mix(in srgb, var(--accent) 32%, transparent), transparent 58%),
+             radial-gradient(820px 820px at 10% 120%, #5a1d00 0%, transparent 55%);
+  --surface: #1a120a;
+  --surface-2: #241a0f;
+  --surface-3: #322414;
+  --text: #fff4e2;
+  --muted: #d3ad7e;
+  --faint: #97744a;
+  --line: #2e2113;
+  --accent-fg: #140d06;
+  --shadow: rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Charcoal (warm OLED black) ---------- */
+[data-theme="charcoal"] {
+  --bg: #000000;
+  --bg-grad: radial-gradient(1000px 720px at 80% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%);
+  --surface: #0c0805;
+  --surface-2: #15100b;
+  --surface-3: #221913;
+  --text: #fdeede;
+  --muted: #b9a08e;
+  --faint: #75645a;
+  --line: #1d150f;
+  --accent-fg: #100a06;
+  --shadow: rgba(0, 0, 0, 0.75);
+}
+
+/* ---------- Smoke (cool slate dark) ---------- */
+[data-theme="smoke"] {
+  --bg: #0d0f12;
+  --bg-grad: radial-gradient(1100px 760px at 85% -10%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 60%);
+  --surface: #15181d;
+  --surface-2: #1d2128;
+  --surface-3: #272d36;
+  --text: #f1eef0;
+  --muted: #a6a2aa;
+  --faint: #6c6872;
+  --line: #20242c;
+  --accent-fg: #0d0f12;
+  --shadow: rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- Ash (warm light) ---------- */
+[data-theme="ash"] {
+  --bg: #faf4ee;
+  --bg-grad: radial-gradient(1100px 760px at 85% -15%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%),
+             radial-gradient(820px 700px at -8% 112%, color-mix(in srgb, #ff5a1f 10%, transparent), transparent 55%);
+  --surface: #fffdfa;
+  --surface-2: #f3e9df;
+  --surface-3: #ecdccd;
+  --text: #2a1810;
+  --muted: #7c5c48;
+  --faint: #ab8a72;
+  --line: #ecdccd;
+  --accent-fg: #ffffff;
+  --shadow: rgba(80, 40, 20, 0.12);
+}
+
+/* ---------- Solar (bright light) ---------- */
+[data-theme="solar"] {
+  --bg: #fff7ed;
+  --bg-grad: radial-gradient(1100px 760px at 85% -15%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%);
+  --surface: #ffffff;
+  --surface-2: #fdeedd;
+  --surface-3: #fbe0c6;
+  --text: #2b1606;
+  --muted: #8a5a30;
+  --faint: #b78a5e;
+  --line: #fae2cc;
+  --accent-fg: #ffffff;
+  --shadow: rgba(120, 60, 10, 0.12);
+}
+
+/* Accent defaults (overridden at runtime by the settings store) */
+:root {
+  --accent: #ff5a1f;
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+
+  /* Result / feedback scale */
+  --good: #34d399;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  --heat: #ff7a18;
+
+  --radius: 18px;
+  --app-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---------- base ---------- */
+html {
+  font-size: 16px;
+}
+html[data-density="compact"] {
+  font-size: 14.5px;
+}
+html[data-density="spacious"] {
+  font-size: 17px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--app-font);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* animated gradient backdrop layer */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg-grad);
+  pointer-events: none;
+}
+
+/* surfaces / glass */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 2px var(--shadow);
+}
+html[data-glass="on"] .card,
+html[data-glass="on"] .glassable {
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+}
+
+/* reduce-motion / animation toggle */
+html[data-animations="off"] * {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-3) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* utility helpers */
+.accent-grad {
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 50%, #ffd000));
+}
+.fire-grad {
+  background: linear-gradient(135deg, #ff2d00, var(--accent) 45%, #ffc400);
+}
+.text-grad {
+  background: linear-gradient(135deg, #ff2d00, var(--accent) 50%, #ffc400);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* card-flip helpers (flashcards) */
+.flip-scene { perspective: 1400px; }
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.flip-inner.is-flipped { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: grid;
+  place-items: center;
+}
+.flip-face.back { transform: rotateY(180deg); }
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-radius: var(--radius-soft);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface-3) 80%, transparent), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { opacity: 0.82; transform: translateY(-1px) scale(1.04); }
+}
+.flame-flicker { animation: flicker 1.6s ease-in-out infinite; }
