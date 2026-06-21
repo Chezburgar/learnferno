@@ -44,16 +44,17 @@ export const useAuth = create<AuthState>((set) => ({
   },
 
   signUp: async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
-      },
-    });
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) return { error: error.message };
-    // If no session is returned, the project requires email confirmation.
-    return { needsConfirm: !data.session };
+    // New accounts are auto-confirmed by a DB trigger, so there's no email step.
+    // If signUp didn't already return a session, sign in immediately.
+    if (data.session) return {};
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError) {
+      // Fallback: confirmation really was required and the auto-confirm didn't apply.
+      return { needsConfirm: true };
+    }
+    return {};
   },
 
   signOut: async () => {
