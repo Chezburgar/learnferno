@@ -113,15 +113,18 @@ export const useProgress = create<ProgressState>()((set, get) => ({
   },
 }));
 
-/** XP level curve: each level needs a bit more than the last. */
+/**
+ * XP level curve. Deliberately steep — leveling up should feel earned.
+ * Level 2 costs 250 XP and each subsequent level needs 50% more than the last.
+ */
 export function levelFromXp(xp: number): { level: number; into: number; need: number } {
   let level = 1;
-  let need = 100;
+  let need = 250;
   let remaining = xp;
   while (remaining >= need) {
     remaining -= need;
     level += 1;
-    need = Math.round(need * 1.35);
+    need = Math.round(need * 1.5);
   }
   return { level, into: remaining, need };
 }
