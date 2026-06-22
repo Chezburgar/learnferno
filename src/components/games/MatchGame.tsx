@@ -7,6 +7,7 @@ import { Button } from "@/components/ui";
 import { GameSummary, GameTopBar } from "./GameChrome";
 import { useProgress } from "@/store/progress";
 import { cn, sample, shuffle as shuffleArr } from "@/lib/utils";
+import { sfx } from "@/lib/sfx";
 import type { Deck } from "@/lib/types";
 
 interface Tile {
@@ -79,10 +80,12 @@ export function MatchGame({ deck, onExit }: { deck: Deck; onExit: () => void }) 
         nm.add(b.key);
         setMatched(nm);
         setSelected([]);
-        if (nm.size === tiles.length) finish(mistakes, elapsed);
+        sfx.match();
+        if (nm.size === tiles.length) { sfx.finish(); finish(mistakes, elapsed); }
       } else {
         setMistakes((m) => m + 1);
         setWrongKeys(next);
+        sfx.wrong();
         setTimeout(() => {
           setSelected([]);
           setWrongKeys([]);

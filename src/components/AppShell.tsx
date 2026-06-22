@@ -16,11 +16,15 @@ import {
   Menu,
   RefreshCw,
   Settings,
+  Trophy,
 } from "lucide-react";
 import { useState } from "react";
 import { useProgress, levelFromXp } from "@/store/progress";
 import { useAuth } from "@/store/auth";
+import { useProfile } from "@/store/profile";
 import { useSync } from "@/store/sync";
+import { Avatar } from "@/components/Avatar";
+import { LevelUpModal } from "@/components/LevelUpModal";
 import { useHydrated } from "@/lib/use-hydrated";
 import { asset, cn } from "@/lib/utils";
 
@@ -29,12 +33,13 @@ const NAV = [
   { href: "/decks", label: "Flashcards", icon: Layers },
   { href: "/quizzes", label: "Quizzes", icon: ListChecks },
   { href: "/play", label: "Play", icon: Gamepad2 },
+  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/transfer", label: "Import / Export", icon: ArrowLeftRight },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 const MOBILE_NAV = NAV.filter((n) =>
-  ["/dashboard", "/decks", "/quizzes", "/play", "/settings"].includes(n.href),
+  ["/dashboard", "/decks", "/play", "/leaderboard", "/settings"].includes(n.href),
 );
 
 function Logo() {
@@ -139,19 +144,19 @@ function SyncStatus() {
 
 function UserChip() {
   const router = useRouter();
-  const email = useAuth((s) => s.user?.email);
   const signOut = useAuth((s) => s.signOut);
-  const initials = (email ?? "?").slice(0, 2).toUpperCase();
+  const displayName = useProfile((s) => s.displayName);
+  const avatar = useProfile((s) => s.avatar);
 
   return (
     <div className="flex items-center gap-3 rounded-[var(--radius-soft)] bg-surface-2 px-3 py-2.5">
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent text-sm font-bold text-accent-fg">
-        {initials}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold">{email ?? "Account"}</p>
+      <Link href="/profile" title="Edit profile" className="shrink-0">
+        <Avatar avatar={avatar} size={38} />
+      </Link>
+      <Link href="/profile" className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold">{displayName}</p>
         <SyncStatus />
-      </div>
+      </Link>
       <button
         onClick={async () => {
           await signOut();
@@ -192,6 +197,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
+      <LevelUpModal />
       {/* desktop sidebar */}
       <aside className="glassable sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-line lg:flex">
         {SidebarBody}

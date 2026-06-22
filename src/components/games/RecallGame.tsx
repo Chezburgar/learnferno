@@ -7,6 +7,7 @@ import { Button, Input } from "@/components/ui";
 import { GameSummary, GameTopBar, ProgressBar } from "./GameChrome";
 import { useProgress } from "@/store/progress";
 import { answersMatch, shuffle as shuffleArr } from "@/lib/utils";
+import { sfx } from "@/lib/sfx";
 import type { Deck } from "@/lib/types";
 
 type Phase = "input" | "feedback";
@@ -39,7 +40,7 @@ export function RecallGame({ deck, onExit }: { deck: Deck; onExit: () => void })
     if (phase === "feedback") return next();
     const right = answersMatch(value, order[idx].back);
     setLastRight(right);
-    if (right) setCorrect((c) => c + 1);
+    if (right) { setCorrect((c) => c + 1); sfx.correct(); } else sfx.wrong();
     setPhase("feedback");
   };
 
@@ -47,6 +48,7 @@ export function RecallGame({ deck, onExit }: { deck: Deck; onExit: () => void })
     if (idx + 1 >= order.length) {
       const score = Math.round((correct / order.length) * 100);
       recordPlay({ game: "Recall", source: deck.name, score, xp: 12 + correct * 8 });
+      sfx.finish();
       setDone(true);
       return;
     }

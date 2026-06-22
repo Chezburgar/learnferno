@@ -8,8 +8,10 @@ import { RecallGame } from "./RecallGame";
 import { MatchGame } from "./MatchGame";
 import { QuizGame } from "./QuizGame";
 import { BlitzGame } from "./BlitzGame";
+import { SurvivalGame } from "./SurvivalGame";
+import { ScrambleGame } from "./ScrambleGame";
 
-export type GameId = "flip" | "recall" | "match" | "test" | "blitz";
+export type GameId = "flip" | "recall" | "match" | "test" | "blitz" | "survival" | "scramble";
 export type ContentType = "deck" | "quiz";
 
 function Missing({ onExit }: { onExit: () => void }) {
@@ -35,8 +37,8 @@ export function GamePlayer({
   const deck = useLibrary((s) => s.decks.find((d) => d.id === contentId));
   const quiz = useLibrary((s) => s.quizzes.find((q) => q.id === contentId));
 
-  const blitzItems = useMemo(() => {
-    if (game !== "blitz") return [];
+  const mcItems = useMemo(() => {
+    if (game !== "blitz" && game !== "survival") return [];
     if (contentType === "deck" && deck) return mcFromDeck(deck);
     if (contentType === "quiz" && quiz) return mcFromQuiz(quiz);
     return [];
@@ -45,11 +47,14 @@ export function GamePlayer({
   if (game === "flip") return deck ? <FlipGame deck={deck} onExit={onExit} /> : <Missing onExit={onExit} />;
   if (game === "recall") return deck ? <RecallGame deck={deck} onExit={onExit} /> : <Missing onExit={onExit} />;
   if (game === "match") return deck ? <MatchGame deck={deck} onExit={onExit} /> : <Missing onExit={onExit} />;
+  if (game === "scramble") return deck ? <ScrambleGame deck={deck} onExit={onExit} /> : <Missing onExit={onExit} />;
   if (game === "test") return quiz ? <QuizGame quiz={quiz} onExit={onExit} /> : <Missing onExit={onExit} />;
-  if (game === "blitz") {
+  if (game === "blitz" || game === "survival") {
     const source = contentType === "deck" ? deck?.name : quiz?.name;
     if (!source) return <Missing onExit={onExit} />;
-    return <BlitzGame items={blitzItems} source={source} onExit={onExit} />;
+    return game === "blitz"
+      ? <BlitzGame items={mcItems} source={source} onExit={onExit} />
+      : <SurvivalGame items={mcItems} source={source} onExit={onExit} />;
   }
   return <Missing onExit={onExit} />;
 }

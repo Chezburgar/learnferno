@@ -99,3 +99,72 @@ export function pushProgress(userId: string, data: unknown) {
     ),
   );
 }
+
+/* ---------------- profiles / leaderboard ---------------- */
+
+export interface ProfileRow {
+  user_id: string;
+  display_name: string;
+  avatar: unknown;
+  xp: number;
+  level: number;
+  best_blitz: number;
+}
+
+export async function pullProfile(userId: string): Promise<ProfileRow | null> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("user_id, display_name, avatar, xp, level, best_blitz")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as ProfileRow) ?? null;
+}
+
+export async function ensureProfile(userId: string, row: Omit<ProfileRow, "user_id">): Promise<ProfileRow> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .insert({ user_id: userId, ...row })
+    .select("user_id, display_name, avatar, xp, level, best_blitz")
+    .single();
+  if (error) throw error;
+  return data as ProfileRow;
+}
+
+export function upsertProfileIdentity(userId: string, fields: { display_name?: string; avatar?: unknown }) {
+  return track(
+    Promise.resolve(
+      supabase
+        .from("profiles")
+        .update({ ...fields, updated_at: new Date().toISOString() })
+        .eq("user_id", userId)
+        .then(({ error }) => {
+          if (error) throw error;
+        }),
+    ),
+  );
+}
+
+export function upsertProfileStats(userId: string, stats: { xp: number; level: number; best_blitz: number }) {
+  return track(
+    Promise.resolve(
+      supabase
+        .from("profiles")
+        .update({ ...stats, updated_at: new Date().toISOString() })
+        .eq("user_id", userId)
+        .then(({ error }) => {
+          if (error) throw error;
+        }),
+    ),
+  );
+}
+
+export async function fetchLeaderboard(limit = 100): Promise<ProfileRow[]> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("user_id, display_name, avatar, xp, level, best_blitz")
+    .order("xp", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data as ProfileRow[]) ?? [];
+}

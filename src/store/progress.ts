@@ -3,7 +3,8 @@
 import { create } from "zustand";
 import { todayKey } from "@/lib/utils";
 import { useAuth } from "@/store/auth";
-import { pushProgress } from "@/lib/cloud";
+import { pushProgress, upsertProfileStats } from "@/lib/cloud";
+import { sfx } from "@/lib/sfx";
 
 export interface PlayResult {
   game: string;
@@ -24,9 +25,11 @@ export interface ProgressData {
 
 interface ProgressState extends ProgressData {
   loaded: boolean;
+  levelUp: { from: number; to: number } | null;
   hydrate: (data: Partial<ProgressData>) => void;
   clear: () => void;
   recordPlay: (r: Omit<PlayResult, "at">) => void;
+  clearLevelUp: () => void;
   reset: () => void;
 }
 
@@ -55,38 +58,58 @@ function snapshot(s: ProgressData): ProgressData {
 export const useProgress = create<ProgressState>()((set, get) => ({
   ...EMPTY,
   loaded: false,
+  levelUp: null,
 
   hydrate: (data) => set({ ...EMPTY, ...data, loaded: true }),
-  clear: () => set({ ...EMPTY, loaded: false }),
+  clear: () => set({ ...EMPTY, loaded: false, levelUp: null }),
 
   recordPlay: (r) => {
     const today = todayKey();
-    const { lastDay, streak } = get();
-    let nextStreak = streak;
-    if (lastDay !== today) {
+    const prev = get();
+    const oldLevel = levelFromXp(prev.xp).level;
+
+    let nextStreak = prev.streak;
+    if (prev.lastDay !== today) {
       const y = new Date();
       y.setDate(y.getDate() - 1);
       const yKey = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, "0")}-${String(y.getDate()).padStart(2, "0")}`;
-      nextStreak = lastDay === yKey ? streak + 1 : 1;
+      nextStreak = prev.lastDay === yKey ? prev.streak + 1 : 1;
     }
+
+    const newXp = prev.xp + Math.max(0, Math.round(r.xp));
+    const newLevel = levelFromXp(newXp).level;
     const entry: PlayResult = { ...r, at: Date.now() };
+
     set({
-      xp: get().xp + Math.max(0, Math.round(r.xp)),
-      plays: get().plays + 1,
+      xp: newXp,
+      plays: prev.plays + 1,
       streak: nextStreak,
       lastDay: today,
       bestBlitz:
-        r.game === "Inferno Blitz" ? Math.max(get().bestBlitz, Math.round(r.score)) : get().bestBlitz,
-      history: [entry, ...get().history].slice(0, 50),
+        r.game === "Inferno Blitz" ? Math.max(prev.bestBlitz, Math.round(r.score)) : prev.bestBlitz,
+      history: [entry, ...prev.history].slice(0, 50),
+      levelUp: newLevel > oldLevel ? { from: oldLevel, to: newLevel } : get().levelUp,
     });
+
+    if (newLevel > oldLevel) setTimeout(() => sfx.levelUp(), 350);
+
     const u = uidOf();
-    if (u) pushProgress(u, snapshot(get()));
+    if (u) {
+      const s = get();
+      pushProgress(u, snapshot(s));
+      upsertProfileStats(u, { xp: s.xp, level: newLevel, best_blitz: s.bestBlitz });
+    }
   },
 
+  clearLevelUp: () => set({ levelUp: null }),
+
   reset: () => {
-    set({ ...EMPTY, loaded: true });
+    set({ ...EMPTY, loaded: true, levelUp: null });
     const u = uidOf();
-    if (u) pushProgress(u, EMPTY);
+    if (u) {
+      pushProgress(u, EMPTY);
+      upsertProfileStats(u, { xp: 0, level: 1, best_blitz: 0 });
+    }
   },
 }));
 

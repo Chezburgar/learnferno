@@ -6,6 +6,7 @@ import { Flame } from "lucide-react";
 import { useAuth } from "@/store/auth";
 import { useLibrary } from "@/store/library";
 import { useProgress } from "@/store/progress";
+import { useProfile } from "@/store/profile";
 import { bootstrapUser } from "@/lib/bootstrap";
 
 function FullScreenLoader({ label }: { label: string }) {
@@ -42,6 +43,7 @@ export function AppGate({ children }: { children: React.ReactNode }) {
       bootstrappedFor.current = null;
       useLibrary.getState().clear();
       useProgress.getState().clear();
+      useProfile.getState().clear();
     }
   }, [status, userId]);
 

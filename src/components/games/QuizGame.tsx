@@ -7,6 +7,7 @@ import { Button, Input } from "@/components/ui";
 import { GameSummary, GameTopBar, ProgressBar } from "./GameChrome";
 import { useProgress } from "@/store/progress";
 import { answersMatch, cn, shuffle as shuffleArr } from "@/lib/utils";
+import { sfx } from "@/lib/sfx";
 import type { Quiz, Question } from "@/lib/types";
 
 interface Attempt {
@@ -48,6 +49,7 @@ export function QuizGame({ quiz, onExit }: { quiz: Quiz; onExit: () => void }) {
       correct = picked === q.correctIndex;
     }
     setAttempts((a) => [...a, { question: q, correct, given }]);
+    if (correct) sfx.correct(); else sfx.wrong();
     setRevealed(true);
   };
 
@@ -56,6 +58,7 @@ export function QuizGame({ quiz, onExit }: { quiz: Quiz; onExit: () => void }) {
       const got = attempts.filter((a) => a.correct).length;
       const score = Math.round((got / questions.length) * 100);
       recordPlay({ game: "Quiz", source: quiz.name, score, xp: 10 + got * 9 });
+      sfx.finish();
       setDone(true);
       return;
     }

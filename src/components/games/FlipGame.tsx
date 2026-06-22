@@ -7,6 +7,7 @@ import { Button } from "@/components/ui";
 import { GameSummary, GameTopBar, ProgressBar } from "./GameChrome";
 import { useProgress } from "@/store/progress";
 import { shuffle as shuffleArr } from "@/lib/utils";
+import { sfx } from "@/lib/sfx";
 import type { Deck } from "@/lib/types";
 
 export function FlipGame({ deck, onExit }: { deck: Deck; onExit: () => void }) {
@@ -30,12 +31,13 @@ export function FlipGame({ deck, onExit }: { deck: Deck; onExit: () => void }) {
   };
 
   const advance = (gotIt: boolean) => {
-    if (gotIt) setKnown((k) => k + 1);
-    else setLearning((l) => l + 1);
+    if (gotIt) { setKnown((k) => k + 1); sfx.correct(); }
+    else { setLearning((l) => l + 1); sfx.click(); }
     if (idx + 1 >= order.length) {
       const score = Math.round((((gotIt ? known + 1 : known)) / order.length) * 100);
       const xp = 10 + (gotIt ? known + 1 : known) * 6;
       recordPlay({ game: "Flip", source: deck.name, score, xp });
+      sfx.finish();
       setDone(true);
     } else {
       setIdx((i) => i + 1);
@@ -95,7 +97,7 @@ export function FlipGame({ deck, onExit }: { deck: Deck; onExit: () => void }) {
           >
             <div
               className={`flip-inner ${flipped ? "is-flipped" : ""} cursor-pointer`}
-              onClick={() => setFlipped((f) => !f)}
+              onClick={() => { setFlipped((f) => !f); sfx.flip(); }}
             >
               <div className="flip-face card p-8 text-center">
                 <div>

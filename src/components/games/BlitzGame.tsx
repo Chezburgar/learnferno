@@ -6,6 +6,7 @@ import { Flame, Heart, Zap } from "lucide-react";
 import { GameSummary, GameTopBar } from "./GameChrome";
 import { useProgress } from "@/store/progress";
 import { cn, shuffle as shuffleArr } from "@/lib/utils";
+import { sfx } from "@/lib/sfx";
 import type { MCItem } from "@/lib/game-utils";
 
 const ROUND_SECONDS = 60;
@@ -60,6 +61,7 @@ export function BlitzGame({
       score, // points
       xp: 15 + correctCount * 5,
     });
+    sfx.gameOver();
     setDone(true);
   };
 
@@ -93,10 +95,12 @@ export function BlitzGame({
       setBestStreak((b) => Math.max(b, ns));
       setTimeLeft((s) => Math.min(ROUND_SECONDS, s + 1)); // small time reward
       setFlash("right");
+      if (ns >= 3 && ns % 3 === 0) sfx.streak(ns); else sfx.correct();
     } else {
       setStreak(0);
       setLives((l) => l - 1);
       setFlash("wrong");
+      sfx.wrong();
     }
     setTimeout(() => {
       setFlash(null);

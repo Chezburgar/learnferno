@@ -13,6 +13,8 @@ import {
   ListChecks,
   RefreshCw,
   Repeat,
+  Shuffle,
+  Skull,
   Timer,
 } from "lucide-react";
 import { PageHeader, Stagger, StaggerItem } from "@/components/PageHeader";
@@ -39,18 +41,21 @@ interface GameDef {
 const GAMES: GameDef[] = [
   { id: "flip", name: "Flip", desc: "Flip through cards and rate how well you knew each one.", icon: Repeat, kind: "deck" },
   { id: "recall", name: "Type Recall", desc: "See the term, type the answer from memory.", icon: Keyboard, kind: "deck" },
+  { id: "scramble", name: "Scramble", desc: "Unscramble the term from its definition, letter by letter.", icon: Shuffle, kind: "deck" },
   { id: "match", name: "Match", desc: "Race to pair every term with its answer.", icon: Grid3x3, kind: "deck" },
   { id: "test", name: "Quiz", desc: "Work through your quiz and get a graded score.", icon: ListChecks, kind: "quiz" },
   { id: "blitz", name: "Inferno Blitz", desc: "Timed rapid-fire MC. Keep your heat streak alive!", icon: Timer, kind: "both" },
+  { id: "survival", name: "Survival", desc: "No timer, just 3 lives. How far can your streak go?", icon: Skull, kind: "both" },
 ];
 
 function deckEligible(game: GameDef, d: Deck): boolean {
   if (game.id === "match") return d.cards.filter((c) => c.front.trim() && c.back.trim()).length >= 2;
-  if (game.id === "blitz") return deckSupportsMC(d);
+  if (game.id === "scramble") return d.cards.some((c) => c.front.trim() && c.back.trim() && c.front.replace(/\s/g, "").length >= 3 && c.front.replace(/\s/g, "").length <= 14);
+  if (game.id === "blitz" || game.id === "survival") return deckSupportsMC(d);
   return d.cards.length >= 1;
 }
 function quizEligible(game: GameDef, q: Quiz): boolean {
-  if (game.id === "blitz") return quizSupportsBlitz(q);
+  if (game.id === "blitz" || game.id === "survival") return quizSupportsBlitz(q);
   return q.questions.length >= 1;
 }
 
@@ -183,7 +188,7 @@ function PlayHub() {
                     <p className="mt-1 flex-1 text-sm text-muted">{g.desc}</p>
                     {preContent && !eligible && (
                       <p className="mt-3 text-xs text-bad">
-                        {g.id === "blitz" ? "Needs at least 4 items" : g.id === "match" ? "Needs at least 2 complete cards" : "Add some content first"}
+                        {g.id === "blitz" || g.id === "survival" ? "Needs at least 4 items" : g.id === "match" ? "Needs at least 2 complete cards" : g.id === "scramble" ? "Needs 3–14 letter terms" : "Add some content first"}
                       </p>
                     )}
                   </button>
@@ -284,7 +289,7 @@ function ContentPicker({
                   meta={`${d.cards.length} cards`}
                   color={d.color}
                   eligible={deckEligible(game, d)}
-                  hint={game.id === "blitz" ? "Needs 4+ complete cards" : game.id === "match" ? "Needs 2+ complete cards" : "Empty deck"}
+                  hint={game.id === "blitz" || game.id === "survival" ? "Needs 4+ complete cards" : game.id === "match" ? "Needs 2+ complete cards" : game.id === "scramble" ? "Needs 3–14 letter terms" : "Empty deck"}
                 />
               ))}
             </div>
